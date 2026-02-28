@@ -293,6 +293,7 @@
 
         const testSwitch = document.getElementById('testSwitch');
         testSwitch.addEventListener('click', () => {
+            if (isSpinning) return;
             isTestMode = !isTestMode;
             if (isTestMode) {
                 document.body.style.backgroundColor = '#4a0000'; // Dark red
@@ -317,8 +318,8 @@
             // Generate rotation
             let spinAmount;
             if (isTestMode) {
-                // Force horizontal: Need final angle to be 45-135 or 225-315
-                // Assuming we want to look natural, let's pick 90 degrees as base, plus multiples of 360
+                // Force horizontal: Need final angle to be 80-100 or 260-280
+                // We pick exactly 90 or 270 degrees
                 const targetAngle = Math.random() > 0.5 ? 90 : 270;
                 // Calculate how much we need to add to currentRotation to land on targetAngle
                 const currentAngleMod = currentRotation % 360;
@@ -352,9 +353,9 @@
             if (angle < 0) angle += 360;
 
             // Define up/down (vertical) and sideways (horizontal)
-            // Vertical: 330-30 (top) and 150-210 (bottom) +-30 degrees
+            // Vertical: 325-35 (top) and 145-215 (bottom) +-35 degrees
             // Horizontal: Everything else
-            const isVertical = (angle <= 30 || angle >= 330) || (angle >= 150 && angle <= 210);
+            const isVertical = (angle <= 35 || angle >= 325) || (angle >= 145 && angle <= 215);
             const isHorizontal = !isVertical;
 
             if (isHorizontal) {
@@ -362,8 +363,8 @@
                 updateStreakDisplay();
                 showResult("ネギに上下はない", "#2196F3"); // Blue color for horizontal
 
-                if (streak >= 10) {
-                    // Trigger Happy Birthday
+                if (streak === 10) {
+                    // Trigger Happy Birthday exactly at 10
                     triggerBirthdayCelebration();
                 }
             } else {
