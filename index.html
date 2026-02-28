@@ -352,9 +352,10 @@
             if (angle < 0) angle += 360;
 
             // Define up/down (vertical) and sideways (horizontal)
-            // Vertical: 315-45 and 135-225
-            // Horizontal: 45-135 and 225-315
-            const isHorizontal = (angle >= 45 && angle < 135) || (angle >= 225 && angle < 315);
+            // Vertical: 330-30 (top) and 150-210 (bottom) +-30 degrees
+            // Horizontal: Everything else
+            const isVertical = (angle <= 30 || angle >= 330) || (angle >= 150 && angle <= 210);
+            const isHorizontal = !isVertical;
 
             if (isHorizontal) {
                 streak++;
