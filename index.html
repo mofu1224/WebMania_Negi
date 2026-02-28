@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ネギルーレット - WebMania Birthday</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --accent-color: #4CAF50;
+            --accent-glow: rgba(76, 175, 80, 0.5);
+            --panel-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Glassmorphism Background Pattern */
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 15% 50%, rgba(76, 175, 80, 0.1), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(33, 150, 243, 0.1), transparent 25%);
+            z-index: -1;
+        }
+
+        .score-board {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--panel-bg);
+            padding: 15px 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .score-board h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-count {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-glow);
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .streak-pulse {
+            animation: pulseText 0.5s ease;
+        }
+
+        .roulette-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: -50px;
+        }
+
+        .negi-spinner {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            /* Using the transparent image */
+            display: inline-block;
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.1, 1);
+            filter: drop-shadow(0 0 20px rgba(76, 175, 80, 0.4));
+            will-change: transform;
+        }
+
+        .spin-btn {
+            margin-top: 60px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .spin-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 5px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .spin-btn:disabled {
+            background: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+
+        .result-message {
+            margin-top: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .result-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .birthday-celebration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-size: 60px;
+            font-weight: 900;
+            text-align: center;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 2px 2px 10px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            width: 100vw;
+        }
+
+        .celebrate-anim {
+            animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulseText {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+                color: #fff;
+                text-shadow: 0 0 20px var(--accent-color);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Hidden Test Switch */
+        .hidden-switch {
+            width: 100px;
+            height: 30px;
+            margin-top: 20px;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="score-board">
+        <h3>連続横向き</h3>
+        <div class="score-count" id="streakCount">0</div>
+    </div>
+
+    <div class="roulette-container">
+        <!-- Using the generated cute pop illustration of a negi -->
+        <img src="negi.png" class="negi-spinner" id="negi" alt="ネギ">
+
+        <div class="result-message" id="resultMsg"></div>
+
+        <button class="spin-btn" id="spinBtn">回す (Spin)</button>
+        <div class="hidden-switch" id="testSwitch"></div>
+    </div>
+
+    <div class="birthday-celebration" id="birthdayMsg">
+        WebMania<br>HAPPY BIRTHDAY 🎉
+    </div>
+
+    <script>
+        const spinBtn = document.getElementById('spinBtn');
+        const negi = document.getElementById('negi');
+        const resultMsg = document.getElementById('resultMsg');
+        const streakContainer = document.getElementById('streakCount');
+        const birthdayMsg = document.getElementById('birthdayMsg');
+
+        let currentRotation = 0;
+        let streak = 0;
+        let isSpinning = false;
+        let isTestMode = false;
+
+        const testSwitch = document.getElementById('testSwitch');
+        testSwitch.addEventListener('click', () => {
+            isTestMode = !isTestMode;
+            if (isTestMode) {
+                document.body.style.backgroundColor = '#4a0000'; // Dark red
+                document.querySelector('.bg-pattern').style.background = 'transparent'; // Remove default pattern in test mode
+                negi.style.transitionDuration = '0.3s'; // 10x faster
+            } else {
+                document.body.style.backgroundColor = 'var(--bg-color)';
+                document.querySelector('.bg-pattern').style.background = ''; // Restore default
+                negi.style.transitionDuration = '3s'; // Normal speed
+            }
+        });
+
+        spinBtn.addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            // Hide previous messages
+            resultMsg.classList.remove('show');
+            birthdayMsg.classList.remove('celebrate-anim');
+
+            // Generate rotation
+            let spinAmount;
+            if (isTestMode) {
+                // Force horizontal: Need final angle to be 45-135 or 225-315
+                // Assuming we want to look natural, let's pick 90 degrees as base, plus multiples of 360
+                const targetAngle = Math.random() > 0.5 ? 90 : 270;
+                // Calculate how much we need to add to currentRotation to land on targetAngle
+                const currentAngleMod = currentRotation % 360;
+                let neededSpin = targetAngle - currentAngleMod;
+                if (neededSpin < 0) neededSpin += 360;
+                // Add 5 full rotations (1800) plus needed amount
+                spinAmount = 1800 + neededSpin;
+            } else {
+                // Generate random rotation: At least 5 full circles (1800deg) + random angle
+                const randomExtra = Math.floor(Math.random() * 360);
+                spinAmount = 1800 + randomExtra;
+            }
+
+            currentRotation += spinAmount;
+
+            negi.style.transform = `rotate(${currentRotation}deg)`;
+
+            // Wait for animation to finish (same as CSS transition time)
+            const spinDelay = isTestMode ? 300 : 3000;
+            setTimeout(() => {
+                evaluateResult(currentRotation);
+                isSpinning = false;
+                spinBtn.disabled = false;
+            }, spinDelay);
+        });
+
+        function evaluateResult(totalRotation) {
+            // Normalize the angle to 0-359
+            // A standard emoji might have its own visual angle. We treat 0deg as its default upright state.
+            let angle = totalRotation % 360;
+            if (angle < 0) angle += 360;
+
+            // Define up/down (vertical) and sideways (horizontal)
+            // Vertical: 315-45 and 135-225
+            // Horizontal: 45-135 and 225-315
+            const isHorizontal = (angle >= 45 && angle < 135) || (angle >= 225 && angle < 315);
+
+            if (isHorizontal) {
+                streak++;
+                updateStreakDisplay();
+                showResult("ネギに上下はない", "#2196F3"); // Blue color for horizontal
+
+                if (streak >= 10) {
+                    // Trigger Happy Birthday
+                    triggerBirthdayCelebration();
+                }
+            } else {
+                streak = 0;
+                updateStreakDisplay();
+                showResult("ネギに上下はある", "#F44336"); // Red color for vertical
+            }
+        }
+
+        function updateStreakDisplay() {
+            streakContainer.textContent = streak;
+            streakContainer.classList.remove('streak-pulse');
+            // Trigger reflow to restart animation
+            void streakContainer.offsetWidth;
+            streakContainer.classList.add('streak-pulse');
+        }
+
+        function showResult(text, color) {
+            resultMsg.textContent = text;
+            resultMsg.style.color = color;
+            resultMsg.classList.add('show');
+        }
+
+        function triggerBirthdayCelebration() {
+            birthdayMsg.classList.add('celebrate-anim');
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+
+                // Random position, color, and animation delay
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random shape (circle or square)
+                if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear ${Math.random() * 2}s`;
+
+                document.body.appendChild(confetti);
+
+                // Clean up after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+
+</html>
