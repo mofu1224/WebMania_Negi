@@ -236,6 +236,25 @@
             cursor: pointer;
             z-index: 10;
         }
+
+        .rainbow-text {
+            background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+            background-size: 200% auto;
+            color: transparent !important;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: rainbowMove 2s linear infinite;
+        }
+
+        .rainbow-text.streak-pulse {
+            animation: pulseText 0.5s ease, rainbowMove 2s linear infinite;
+        }
+
+        @keyframes rainbowMove {
+            to {
+                background-position: 200% center;
+            }
+        }
     </style>
 </head>
 
@@ -243,7 +262,7 @@
     <div class="bg-pattern"></div>
 
     <div class="score-board">
-        <div class="score-count" id="streakCount">0</div>
+        <div class="score-count" id="streakCount">0/10</div>
     </div>
 
     <div class="roulette-container">
@@ -354,11 +373,17 @@
         }
 
         function updateStreakDisplay() {
-            streakContainer.textContent = streak;
+            streakContainer.textContent = streak + '/10';
             streakContainer.classList.remove('streak-pulse');
             // Trigger reflow to restart animation
             void streakContainer.offsetWidth;
             streakContainer.classList.add('streak-pulse');
+
+            if (streak > 10) {
+                streakContainer.classList.add('rainbow-text');
+            } else {
+                streakContainer.classList.remove('rainbow-text');
+            }
         }
 
         function showResult(text, color) {
